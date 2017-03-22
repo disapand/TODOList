@@ -1,4 +1,4 @@
-package com.disapand.todolist.com.disapand.tools;
+package com.disapand.todolist;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,6 +11,9 @@ import java.util.TimeZone;
 public class ListItem {
     private String todo_list_title;
     private String todo_list_time;
+
+    public ListItem() {
+    }
 
     public ListItem(String todo_list_title) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -25,6 +28,10 @@ public class ListItem {
 
     public void setTodo_list_title(String todo_list_title) {
         this.todo_list_title = todo_list_title;
+    }
+
+    public void setTodo_list_time(String todo_list_time) {
+        this.todo_list_time = todo_list_time;
     }
 
     public String getTodo_list_time() {

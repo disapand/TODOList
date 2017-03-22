@@ -1,16 +1,20 @@
 package com.disapand.todolist;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.disapand.todolist.com.disapand.tools.CommonAdapter;
-import com.disapand.todolist.com.disapand.tools.ListItem;
 import com.disapand.todolist.com.disapand.tools.ViewHolder;
 
 import java.util.LinkedList;
@@ -19,37 +23,56 @@ public class MainActivity extends AppCompatActivity {
 
     private long exitTime = 0;
     private LinkedList<ListItem> list = null;
+    private ListItemDatabase database;
+    private ItemAdapter itemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        database = new ListItemDatabase(MainActivity.this);
+        Cursor cursor = database.getAllItems();
         list = new LinkedList<>();
-        list.add(new ListItem("测试一下"));
-        list.add(new ListItem("测试一下2"));
-        list.add(new ListItem("测试一下3"));
-        list.add(new ListItem("测试一下4"));
-        list.add(new ListItem("测试一下5"));
-        list.add(new ListItem("测试一下6"));
-        list.add(new ListItem("测试一下7"));
-
-        ListView l = (ListView) findViewById(R.id.todo_list);
-
-        l.setAdapter(new CommonAdapter<ListItem>(MainActivity.this, list, R.layout.list_item) {
-
-            @Override
-            public void covert(ViewHolder holder, ListItem listItem) {
-                holder.setText(R.id.todo_list_title,listItem.getTodo_list_title());
-                holder.setText(R.id.todo_list_time,listItem.getTodo_list_time());
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                ListItem item = new ListItem();
+                item.setTodo_list_title(cursor.getString(cursor.getColumnIndex("content")));
+                item.setTodo_list_time(cursor.getString(cursor.getColumnIndex("time")));
+                list.add(item);
             }
-        });
+            cursor.close();
+        }
+
+        final ListView l = (ListView) findViewById(R.id.todo_list);
+        itemAdapter = new ItemAdapter(this, list, R.layout.list_item);
+        l.setAdapter(itemAdapter);
 
         ImageButton btn_add = (ImageButton) findViewById(R.id.todo_list_add);
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "点击了add按钮", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, AddNewActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        l.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                database.deleteItem(itemAdapter.getItem(position).getTodo_list_title());
+                list.remove(position);
+                itemAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+
+        l.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, AddNewActivity.class);
+                intent.putExtra("todo_content", itemAdapter.getItem(position).getTodo_list_title());
+                startActivity(intent);
             }
         });
 
@@ -57,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == event.KEYCODE_BACK) {
-            if ((System.currentTimeMillis() - exitTime) > 2000){
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
                 Toast.makeText(getApplicationContext(), "再按一次返回退出程序", Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
                 return true;
