@@ -6,6 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Created by shado on 2017/3/22.
  */
@@ -37,8 +41,14 @@ public class ListItemDatabase extends SQLiteOpenHelper {
         return database.query("todo_list", null, null, null, null, null, "id ASC");
     }
 
-    public void updateItems() {
-
+    public void updateItem(String oldContent, String newContent) {
+        SQLiteDatabase database = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("content", newContent);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+        contentValues.put("time", sdf.format(new Date()));
+        database.update("todo_list", contentValues,  "content = ?", new String[]{oldContent});
     }
 
     public void deleteItem(int item_id) {

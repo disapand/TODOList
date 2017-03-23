@@ -1,9 +1,11 @@
 package com.disapand.todolist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private LinkedList<ListItem> list = null;
     private ListItemDatabase database;
     private ItemAdapter itemAdapter;
+    private AlertDialog alert;
+    private AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +63,26 @@ public class MainActivity extends AppCompatActivity {
 
         l.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                database.deleteItem(itemAdapter.getItem(position).getTodo_list_title());
-                list.remove(position);
-                itemAdapter.notifyDataSetChanged();
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                alert = null;
+                builder = new AlertDialog.Builder(MainActivity.this);
+                alert = builder.setTitle("您确定要删除这条记录吗？")
+                        .setMessage(itemAdapter.getItem(position).getTodo_list_title())
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                database.deleteItem(itemAdapter.getItem(position).getTodo_list_title());
+                                list.remove(position);
+                                itemAdapter.notifyDataSetChanged();
+                            }
+                        }).create();
+                alert.show();
                 return true;
             }
         });
@@ -75,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
 
     }
 

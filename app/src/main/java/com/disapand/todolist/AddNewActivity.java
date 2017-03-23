@@ -16,17 +16,21 @@ public class AddNewActivity extends AppCompatActivity {
 
     private ListItemDatabase database;
     private EditText item_title;
+    private Boolean isUpdate;
+    private String oldContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_new);
 
+        isUpdate = false;
         item_title = (EditText) findViewById(R.id.new_list_item);
         Intent it2 = getIntent();
-        String tmp = it2.getStringExtra("todo_content");
-        if (tmp != null || tmp != "") {
-            item_title.setText(tmp);
+        oldContent = it2.getStringExtra("todo_content");
+        if (oldContent != null && oldContent != "") {
+            item_title.setText(oldContent);
+            isUpdate = true;
         }
 
         Button btn_submit = (Button) findViewById(R.id.btn_submit);
@@ -34,10 +38,15 @@ public class AddNewActivity extends AppCompatActivity {
         btn_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                database.insertItem(new ListItem(item_title.getText().toString()));
-                Toast.makeText(AddNewActivity.this, "新的记录添加成功", Toast.LENGTH_SHORT).show();
-                item_title.setText("");
+                if (!isUpdate) {
+                    database.insertItem(new ListItem(item_title.getText().toString()));
+                    Toast.makeText(AddNewActivity.this, "新的记录添加成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    database.updateItem(oldContent, item_title.getText().toString());
+                    Toast.makeText(AddNewActivity.this, "记录修改成功", Toast.LENGTH_SHORT).show();
+                }
 
+                isUpdate = false;
                 Intent intent = new Intent(AddNewActivity.this, MainActivity.class);
                 startActivity(intent);
 
