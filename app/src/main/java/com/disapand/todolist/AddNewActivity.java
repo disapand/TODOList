@@ -24,6 +24,7 @@ public class AddNewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_new);
 
+
         isUpdate = false;
         item_title = (EditText) findViewById(R.id.new_list_item);
         Intent it2 = getIntent();
@@ -49,6 +50,7 @@ public class AddNewActivity extends AppCompatActivity {
                 isUpdate = false;
                 Intent intent = new Intent(AddNewActivity.this, MainActivity.class);
                 startActivity(intent);
+                AddNewActivity.this.finish();
 
                /* 隐藏键盘
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

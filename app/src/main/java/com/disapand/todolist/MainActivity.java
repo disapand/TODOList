@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddNewActivity.class);
                 startActivity(intent);
+                MainActivity.this.finish();
             }
         });
 
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, AddNewActivity.class);
                 intent.putExtra("todo_content", itemAdapter.getItem(position).getTodo_list_title());
                 startActivity(intent);
+                MainActivity.this.finish();
             }
         });
 
